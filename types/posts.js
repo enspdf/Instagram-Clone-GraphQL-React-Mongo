@@ -15,7 +15,6 @@ export default `
     }
 
     input iPost {
-        by: iBy,
         desc: String,
         photo: String
     }
