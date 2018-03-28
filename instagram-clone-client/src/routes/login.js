@@ -1,9 +1,12 @@
 import React from 'react';
-import { Grid } from 'semantic-ui-react';
+import { Grid, Image } from 'semantic-ui-react';
+import { graphql } from 'react-apollo';
+
+import queries from '../utils/queries';
 
 import Signin from './login/Singin';
 import Signup from './login/Signup';
-import LostPassword from './login/LostPassword';
+// import LostPassword from './login/LostPassword';
 
 const styles = {
     grid: {
@@ -37,18 +40,31 @@ class Login extends React.Component {
         this.setState({ showLogin: true, showRegister: false, showLostPassword: false });
     };
 
+    handleLogin = (ev, args) => {
+        console.log(args);
+    };
+
+    handleRegister = async (ev, args) => {
+        const response = await this.props.mutate({
+            variables: args
+        });
+
+        console.log("GraphQL response: " + response);
+    };
+
     render () {
-        const { showLogin, showRegister, showLostPassword } = this.state;
+        // showLostPassword
+        const { showLogin, showRegister } = this.state;
 
         return (
             <Grid columns={2} centered verticalAlign="middle" style={styles.grid}>
                 <Grid.Row>
                     <Grid.Column>
-                        <img src="images/phone.png" />
+                        <Image src="images/phone.png" fluid />
                     </Grid.Column>
                     <Grid.Column>
-                        { showLogin && <Signin styles={styles} handleClick={this.showRegister} /> }
-                        { showRegister && <Signup styles={styles} handleClick={this.showLogin} /> }
+                        { showLogin && <Signin styles={styles} handleClick={this.showRegister} handleSubmit={this.handleLogin} /> }
+                        { showRegister && <Signup styles={styles} handleClick={this.showLogin} handleSubmit={this.handleRegister} /> }
                         {/* showLostPassword && <LostPassword styles={styles} /> */}
                     </Grid.Column>
                 </Grid.Row>
@@ -57,4 +73,4 @@ class Login extends React.Component {
     }
 }
 
-export default Login;
+export default graphql(queries.mutation.createUser)(Login);
