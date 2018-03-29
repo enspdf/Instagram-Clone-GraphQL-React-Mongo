@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Image } from 'semantic-ui-react';
-import { graphql } from 'react-apollo';
+import { graphql, compose } from 'react-apollo';
 
 import queries from '../utils/queries';
 
@@ -29,7 +29,9 @@ class Login extends React.Component {
         showRegister: false,
         showLostPassword: false,
         argsSignup: {},
-        errorSignup: []
+        errorSignup: [],
+        argsSignin: {},
+        errorSignin: []
     };
 
     showRegister = (ev) => {
@@ -42,12 +44,22 @@ class Login extends React.Component {
         this.setState({ showLogin: true, showRegister: false, showLostPassword: false });
     };
 
-    handleLogin = (ev, args) => {
-        console.log(args);
+    handleLogin = async (ev, args) => {
+        const response = await this.props.login({
+            variables: args
+        });
+
+        const { errors, success, token } = response.data.login;
+        if (!success) {
+            this.setState({ erorSignin: errors });
+        } else {
+            localStorage.setItem("token", token);
+            this.props.history.push("/");
+        }
     };
 
     handleRegister = async (ev, args) => {
-        const response = await this.props.mutate({
+        const response = await this.props.createUser({
             variables: args
         });
 
@@ -65,9 +77,15 @@ class Login extends React.Component {
         this.setState({ argsSignup });
     };
 
+    handleChangeSignIn = (ev, input) => {
+        const argsSignin = this.state.argsSignin;
+        argsSignin[input.name] = input.value;
+        this.setState({ argsSignin });
+    };
+
     render () {
         // showLostPassword
-        const { showLogin, showRegister, argsSignup, errorSignup } = this.state;
+        const { showLogin, showRegister, argsSignup, errorSignup, argsSignin, errorSignin } = this.state;
 
         return (
             <Grid columns={2} centered verticalAlign="middle" style={styles.grid}>
@@ -76,7 +94,7 @@ class Login extends React.Component {
                         <Image src="images/phone.png" fluid />
                     </Grid.Column>
                     <Grid.Column>
-                        { showLogin && <Signin styles={styles} handleClick={this.showRegister} handleSubmit={this.handleLogin} /> }
+                        { showLogin && <Signin styles={styles} handleClick={this.showRegister} handleSubmit={this.handleLogin} handleChange={this.handleChangeSignIn} args={argsSignin} errors={errorSignin} /> }
                         { showRegister && <Signup styles={styles} handleClick={this.showLogin} handleSubmit={this.handleRegister} handleChange={this.handleChange} args={argsSignup} errors={errorSignup} /> }
                         {/* showLostPassword && <LostPassword styles={styles} /> */}
                     </Grid.Column>
@@ -86,4 +104,7 @@ class Login extends React.Component {
     }
 }
 
-export default graphql(queries.mutation.createUser)(Login);
+export default compose(
+    graphql(queries.mutation.login, { name: 'login' }),
+    graphql(queries.mutation.createUser, { name: 'createUser' })
+)(Login);
