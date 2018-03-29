@@ -27,7 +27,9 @@ class Login extends React.Component {
     state = {
         showLogin: true,
         showRegister: false,
-        showLostPassword: false
+        showLostPassword: false,
+        argsSignup: {},
+        errorSignup: []
     };
 
     showRegister = (ev) => {
@@ -49,12 +51,23 @@ class Login extends React.Component {
             variables: args
         });
 
-        console.log("GraphQL response: " + response);
+        const { errors, success } = response.data.createUser;
+        if (!success) {
+            this.setState({ errorSignup: errors });
+        } else {
+            this.props.history.push("/");
+        }
+    };
+    
+    handleChange = (ev, input) => {
+        const argsSignup = this.state.argsSignup;
+        argsSignup[input.name] = input.value;
+        this.setState({ argsSignup });
     };
 
     render () {
         // showLostPassword
-        const { showLogin, showRegister } = this.state;
+        const { showLogin, showRegister, argsSignup, errorSignup } = this.state;
 
         return (
             <Grid columns={2} centered verticalAlign="middle" style={styles.grid}>
@@ -64,7 +77,7 @@ class Login extends React.Component {
                     </Grid.Column>
                     <Grid.Column>
                         { showLogin && <Signin styles={styles} handleClick={this.showRegister} handleSubmit={this.handleLogin} /> }
-                        { showRegister && <Signup styles={styles} handleClick={this.showLogin} handleSubmit={this.handleRegister} /> }
+                        { showRegister && <Signup styles={styles} handleClick={this.showLogin} handleSubmit={this.handleRegister} handleChange={this.handleChange} args={argsSignup} errors={errorSignup} /> }
                         {/* showLostPassword && <LostPassword styles={styles} /> */}
                     </Grid.Column>
                 </Grid.Row>

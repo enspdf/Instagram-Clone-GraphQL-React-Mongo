@@ -1,14 +1,17 @@
 export default `
-    type UserShort {
-        _id: ID,
-        username: String!,
-        thumbnail: String
+
+    type Error {
+        path: String!
+        message: String!
     }
 
     type User {
         _id: ID!
         username: String!
         password: String!
+        fullName: String!
+        email: String!
+        thumbnail: String
     }
 
     type Query {
@@ -16,7 +19,12 @@ export default `
         getUser(_id: ID!): User!
     }
 
+    type Response {
+        success: Boolean!
+        errors: [Error]
+    }
+
     type Mutation {
-        createUser(username: String!, password: String!): User!
+        createUser(username: String!, password: String!, fullname: String!, email: String!): Response!
     }
 `;
