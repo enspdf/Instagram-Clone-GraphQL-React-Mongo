@@ -6,6 +6,7 @@ import mongoose, { mongo } from 'mongoose';
 mongoose.Promise = global.Promise;
 import cors from 'cors';
 import "dotenv/config";
+import { apolloUploadExpress } from 'apollo-upload-server';
 
 import models from './models';
 import auth from './auth';
@@ -27,7 +28,7 @@ app.use(cors({
 
 app.use(auth.checkHeaders);
 
-app.use('/graphql', bodyParser.json(), graphqlExpress((req) => {
+app.use('/graphql', bodyParser.json(), apolloUploadExpress(), graphqlExpress((req) => {
     return { 
         schema,
         context: {

@@ -1,5 +1,7 @@
 export default `
 
+    scalar Upload
+
     type Post {
         _id: ID!,
         by: User,
@@ -20,11 +22,20 @@ export default `
         photo: String
     }
 
+    type File {
+        id: ID!
+        path: String!
+        filename: String!
+        mimetype: String!
+        encoding: String!
+    }
+
     type Query {
         getPost(_id: ID!): Post!
     }
 
     type Mutation {
         createPost(post: iPost): Post!
+        singleUpload(file: Upload!): File!
     }
 `;
