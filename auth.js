@@ -1,14 +1,52 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import "dotenv/config";
+import models from './models';
 
 const auth = {
-    getToken: ({ _id }, SECRET) => {
-        const token = jwt.sign({ user: _id }, SECRET, { expiresIn: '5d' });
-        const refreshToken = jwt.sign({ user: _id }, SECRET, { expiresIn: '10m' });
+    checkHeaders: async (req, res, next) => {
+        const token = req.headers["x-token"];
+        if (token) {
+            try {
+                const { user } = jwt.verify(token, process.env.SECRET);
+                req.user = user;
+            } catch (error) {
+                const newToken = await auth.checkToken(token);
+                req.user = newToken.user;
 
-        return [ token, refreshToken ];
+                if (newToken.token) {
+                    res.set("Access-Control-Expose-Headers", "x-token");
+                    res.set("x-token", newToken.token);
+                }
+            }
+        }
+
+        next();
     },
-    login: async (email, password, User, SECRET) => {
+    checkToken: async (token) => {
+        let idUser = null;
+        try {
+            const { user } = await jwt.decode(token);
+            idUser = user;
+        } catch (error) {
+            return {};
+        }
+
+        const user = await models.User.findOne({ _id: idUser });
+        const [ newToken ] = auth.getToken(user);
+
+        return {
+            user: user._id,
+            token: newToken
+        };
+    },
+    getToken: ({ _id }) => {
+        const newToken = jwt.sign({ user: _id }, process.env.SECRET, { expiresIn: '5d' });
+        // const refreshToken = jwt.sign({ user: _id }, process.env.SECRET, { expiresIn: '10m' });
+
+        return [ newToken ];
+    },
+    login: async (email, password, User) => {
 
         const user = await User.findOne({ email });
 
@@ -38,11 +76,11 @@ const auth = {
             }
         }
 
-        const [ token, refreshToken ] = auth.getToken(user, SECRET);
+        const [ newToken ] = auth.getToken(user);
 
         return {
             success: true,
-            token,
+            token: newToken,
             errors: []
         };
     }

@@ -20,7 +20,7 @@ export default ({ styles, handleClick, handleSubmit, handleChange, args, errors 
                         <Icon name="facebook" /> Iniciar sesión con facebook
                     </Button>
                     {
-                        errors.length ? <Message negative header="Los siguientes errores:" list={errors.map(error=>`[${error.path}] ${error.message}`)} /> : null
+                        errors.length ? <Message negative header="Los siguientes errores:" list={ errors.map(error=>`[${error.path}] ${error.message}`) } /> : null
                     }
                 </Form>
             </div>

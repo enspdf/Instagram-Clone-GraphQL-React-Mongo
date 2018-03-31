@@ -5,8 +5,10 @@ import { makeExecutableSchema } from 'graphql-tools';
 import mongoose, { mongo } from 'mongoose';
 mongoose.Promise = global.Promise;
 import cors from 'cors';
+import "dotenv/config";
 
 import models from './models';
+import auth from './auth';
 
 import path from 'path';
 import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas';
@@ -18,22 +20,20 @@ const schema = makeExecutableSchema({
     resolvers
 });
 
-const PORT = 3000;
-const SECRET = "aksjhdgahsdiqwgdijashdjshfjkhaskf";
-
 const app = express();
 app.use(cors({
     origin: ["http://localhost:3001"]
 }));
 
-app.use('/graphql', bodyParser.json(), graphqlExpress({ 
-    schema,
-    context: {
-        models,
-        SECRET,
-        user: {
-            _id: 1,
-            username: "bob"
+app.use(auth.checkHeaders);
+
+app.use('/graphql', bodyParser.json(), graphqlExpress((req) => {
+    return { 
+        schema,
+        context: {
+            models,
+            SECRET: process.env.SECRET,
+            user: req.user
         }
     }
 }));
@@ -42,7 +42,7 @@ app.get('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
 mongoose.connect('mongodb://localhost:27017/instagram-clone')
     .then(() => {
         console.log("Conectado a mongo");
-        app.listen(PORT, () => {
+        app.listen(process.env.PORT, () => {
             console.log("Running GraphQL Server");
         });
 });

@@ -51,7 +51,7 @@ class Login extends React.Component {
 
         const { errors, success, token } = response.data.login;
         if (!success) {
-            this.setState({ erorSignin: errors });
+            this.setState({ errorSignin: errors });
         } else {
             localStorage.setItem("token", token);
             this.props.history.push("/");

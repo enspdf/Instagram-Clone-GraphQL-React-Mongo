@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
-import auth from '../auth.js';
+import auth from '../auth';
+import { isAuthenticatedResolver } from '../permissions';
 
 const formatErrors = (error, otherErrors) => {
     const errors = error.errors;
@@ -34,7 +35,9 @@ const formatErrors = (error, otherErrors) => {
 
 export default {
     Query: {
-        allUsers: (parent, args, { models }) => models.User.find(),
+        allUsers: isAuthenticatedResolver.createResolver(
+            (parent, args, { models }) => models.User.find()
+        ),
         getUser: (parent, args, { models }) => models.User.findOne(args)
     },
     Mutation: {
@@ -48,12 +51,12 @@ export default {
                     otherErrors.push({ path: 'password', message: 'El password debe ser mayor a 8 caracteres' });
                 }
 
-                const hashPassword = await bcrypt.hash(password, 10);
-                const user = await models.User.create({ ...args, password: hashPassword });
-
                 if (otherErrors.length) {
                     throw otherErrors;
                 }
+
+                const hashPassword = await bcrypt.hash(password, 10);
+                const user = await models.User.create({ ...args, password: hashPassword });
 
                 return {
                     success: user && user._id,
