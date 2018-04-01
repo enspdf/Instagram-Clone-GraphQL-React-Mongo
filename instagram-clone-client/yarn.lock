@@ -428,6 +428,17 @@ autoprefixer@^6.3.1:
     postcss "^5.2.16"
     postcss-value-parser "^3.2.3"
 
+aviary-react@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/aviary-react/-/aviary-react-0.0.2.tgz#13fc7d446036913ef607732b341dfad353f065f9"
+  dependencies:
+    babel-runtime "^6.26.0"
+    nodent-runtime "^3.2.1"
+    react-dropzone "^4.2.9"
+    react-load-script "^0.0.6"
+    semantic-ui-css "^2.3.1"
+    semantic-ui-react "^0.79.0"
+
 aws-sign2@~0.6.0:
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/aws-sign2/-/aws-sign2-0.6.0.tgz#14342dd38dbcc94d0e5b87d763cd63612c0e794f"
@@ -4799,6 +4810,10 @@ node-pre-gyp@^0.6.39:
     tar "^2.2.1"
     tar-pack "^3.4.0"
 
+nodent-runtime@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/nodent-runtime/-/nodent-runtime-3.2.1.tgz#9e2755d85e39f764288f0d4752ebcfe3e541e00e"
+
 nopt@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/nopt/-/nopt-4.0.1.tgz#d0d4685afd5415193c8c7505602d0d17cd64474d"
@@ -5729,6 +5744,10 @@ react-dropzone@^4.2.9:
 react-error-overlay@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-4.0.0.tgz#d198408a85b4070937a98667f500c832f86bd5d4"
+
+react-load-script@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/react-load-script/-/react-load-script-0.0.6.tgz#db6851236aaa25bb622677a2eb51dad4f8d2c258"
 
 react-router-dom@^4.2.2:
   version "4.2.2"

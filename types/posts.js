@@ -3,22 +3,27 @@ export default `
     scalar Upload
 
     type Post {
-        _id: ID!,
-        by: User,
-        desc: String,
-        photo: String,
-        likedBy: [User],
-        comments: [User],
+        _id: ID!
+        by: User
+        effect: String
+        photo: String
+        likedBy: [User]
+        comments: [Comment]
         createdAt: String
     }
 
+    type Comment {
+        user: User
+        text: String
+    }
+
     input iBy {
-        username: String!,
+        username: String!
         thumbnail: String
     }
 
     input iPost {
-        desc: String,
+        desc: String
         photo: String
     }
 
@@ -35,7 +40,7 @@ export default `
     }
 
     type Mutation {
-        createPost(post: iPost): Post!
+        createPost(post: iPost): Response!
         singleUpload(file: Upload!): File!
     }
 `;

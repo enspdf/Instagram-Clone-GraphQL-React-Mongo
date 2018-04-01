@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { graphql, compose } from 'react-apollo';
 import Dropzone from 'react-dropzone';
-import { Dimmer, Header, Icon, Image } from 'semantic-ui-react';
+import { Dimmer, Header, Icon, Image, Radio } from 'semantic-ui-react';
+import Aviary from 'aviary-react';
+import queries from '../queries';
 import '../css/cssgram.min.css';
 
 const cssFilters= ["_1977","aden","brannan","brooklyn","clarendon","earlybird","gingham","hudson","inkwell","kelvin","lark","lofi","maven","mayfair","moon","nashville","perpetua","reyes","rise","slumber","stinson","toaster","valencia","walden","willow","xpro2"];
@@ -41,11 +42,13 @@ const styles = {
 class UploadFile extends Component {
     state = {
         file: null,
-        currentFilter: ""
+        currentFilter: "",
+        advanced: false,
+        active: true
     };
 
     onDrop = async ([ file ]) => {
-        // const response = await this.props.mutate({
+        // const response = await this.props.singleUpload({
         //     variables: { file }
         // });
 
@@ -56,11 +59,29 @@ class UploadFile extends Component {
         this.setState({ currentFilter: filter });
     };
 
+    handleAdvanced = (ev, { checked }) => {
+        this.setState({ advanced: checked });
+    };
+
+    handleSave = async (URL) => {
+        const response = await this.props.createPost({
+            variables: { post: { desc: "", photo: URL } }
+        });
+
+        if (response.data.createPost.success) {
+            this.setState({ active: false });
+        }
+    };
+
+    handleClose = () => {
+        this.setState({ active: false });
+    };
+
     render () {
-        const { file, currentFilter } = this.state;
+        const { file, currentFilter, advanced, active } = this.state;
         return (
             <div>
-                <Dimmer active={true} onClickOutside={this.handleClose} page>
+                <Dimmer active={active} onClickOutside={this.handleClose} page>
                     {
                         !file && (
                             <Header as="h2" icon inverted style={styles.dropzoneContainer}>
@@ -74,22 +95,36 @@ class UploadFile extends Component {
                     {
                         file && (
                             <div style={styles.previewDiv}>
-                                <figure className={currentFilter} style={styles.previewFigure}>
-                                    <Image src={file.preview} size="medium" />
-                                </figure>
+                                {
+                                    advanced && (
+                                        <Aviary file={file} onSave={this.handleSave} />
+                                    )
+                                }
+                                {
+                                    !advanced && (
+                                        <figure className={currentFilter} style={styles.previewFigure}>
+                                            <Image src={file.preview} size="medium" />
+                                        </figure>
+                                    )
+                                }
                                 <div>
-                                    <Image.Group size="tiny" styles={styles.divFilters}>
-                                        {
-                                            cssFilters.map((filter, i) => (
-                                                <div key={i} style={styles.divFigure} onClick={() => this.handleFilterClick(filter)}>
-                                                    <h4 style={styles.h4}>{filter}</h4>
-                                                    <figure className={filter} style={styles.figure}>
-                                                        <Image src={file.preview} />
-                                                    </figure>
-                                                </div>
-                                            ))
-                                        }
-                                    </Image.Group>
+                                    <Radio toggle onChange={this.handleAdvanced} /> <span style={{ color: "black" }}>Ir a { advanced ? "Simple" : "Avanzado" }</span>
+                                    {
+                                        !advanced && (
+                                            <Image.Group size="tiny" styles={styles.divFilters}>
+                                            {
+                                                cssFilters.map((filter, i) => (
+                                                    <div key={i} style={styles.divFigure} onClick={() => this.handleFilterClick(filter)}>
+                                                        <h4 style={styles.h4}>{filter}</h4>
+                                                        <figure className={filter} style={styles.figure}>
+                                                            <Image src={file.preview} />
+                                                        </figure>
+                                                    </div>
+                                                ))
+                                            }
+                                            </Image.Group>
+                                        )
+                                    }
                                 </div>
                             </div>
                         )
@@ -100,14 +135,7 @@ class UploadFile extends Component {
     }
 }
 
-export default graphql(gql`
-    mutation($file: Upload!) {
-        singleUpload(file: $file) {
-            id
-            path
-            filename
-            mimetype
-            encoding
-        }
-    }
-`)(UploadFile);
+export default compose(
+    graphql(queries.mutation.singleupload, { name: "singleUpload" }),
+    graphql(queries.mutation.createPost, { name: "createPost" })
+)(UploadFile);
